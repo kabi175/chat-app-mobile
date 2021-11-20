@@ -1,50 +1,40 @@
-async function signIn(
-	authEmail: string,
-	password: string
-): Promise<{
-	username?: string;
-	email?: string;
-	token?: string;
-	error?: Error;
-}> {
-	const res = await fetch('/api/user/signin', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			authEmail,
-			password,
-		}),
-	});
-	const { username, token, email, error } = await res.json();
-	return { username, email, token, error };
-}
+import { singleton } from 'tsyringe';
+import { UserApi } from '../data/user.api';
+import { IUser } from '../model';
 
-async function signUp(
-	username: string,
-	email: string,
-	password: string
-): Promise<{
-	error?: Error;
-}> {
-	try {
-		const res = await fetch('/api/user/signup', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				username,
-				email,
-				password,
-			}),
-		});
-		const { error } = await res.json();
-		return { error };
-	} catch (err) {
-		return { error: err as Error };
+@singleton()
+export class UserService {
+	userApi: UserApi;
+	constructor(userApi: UserApi) {
+		this.userApi = userApi;
+	}
+
+	async signIn(
+		email: string,
+		password: string
+	): Promise<{ user?: IUser; token?: string; error?: Error }> {
+		const { id, username, token, error } = await this.userApi.signIn(
+			email,
+			password
+		);
+		if (error) {
+			return { error };
+		}
+		return {
+			user: { id: id as number, email, displayName: username as string },
+			token,
+		};
+	}
+
+	async signUp(
+		username: string,
+		email: string,
+		password: string
+	): Promise<{ user?: IUser; token?: string; error?: Error }> {
+		const { error } = await this.userApi.signUp(username, email, password);
+		if (error) {
+			return { error };
+		}
+		return await this.signIn(email, password);
 	}
 }
-
-export default { signIn, signUp };
