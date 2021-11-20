@@ -5,5 +5,6 @@ export type UserState = 'online' | 'offline';
 export interface IState {
 	id: number;
 	state: UserState;
-	user: IUser;
+	createdAt: Date;
+	userId: string;
 }
