@@ -1,13 +1,11 @@
-import { singleton } from 'tsyringe';
+import { injectable, singleton } from 'tsyringe';
 import { UserApi } from '../data/user.api';
 import { IUser } from '../model';
 
+@injectable()
 @singleton()
 export class UserService {
-	userApi: UserApi;
-	constructor(userApi: UserApi) {
-		this.userApi = userApi;
-	}
+	constructor(private userApi: UserApi) {}
 
 	async signIn(
 		email: string,
