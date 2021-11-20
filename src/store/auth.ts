@@ -1,55 +1,88 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import userService from '../domain/user';
+import _ from 'lodash';
+import { container } from 'tsyringe';
+import { UserService } from '../service';
 
 export interface AuthState {
 	username?: string;
+	userID?: number;
 	email?: string;
 	token?: string;
 	error?: string;
 }
 
-const initialState: AuthState = {};
+const initialState: AuthState = {
+	username: 'kabilan',
+};
 
 export const authSlice = createSlice({
 	name: 'auth',
 	initialState,
 	reducers: {
 		setAuth: (state, action: PayloadAction<AuthState>) => {
-			state = action.payload;
+			_.assign(state, action.payload);
 		},
-		clearAuth: (state) => {
-			state = {};
+		clearAuth: (state: AuthState) => {
+			_.forIn(state, (value, key) =>
+				_.assign(state, { [key]: undefined })
+			);
 		},
 	},
 });
 
 export const { setAuth, clearAuth } = authSlice.actions;
 
-export const signIn =
-	(username: string, password: string) => (dispatch: Function) => {
-		userService
-			.signIn(username, password)
-			.then(({ username, email, token, error }) => {
-				dispatch(
-					setAuth({ username, email, token, error: error?.message })
+function authActions(userService: UserService) {
+	const signIn =
+		(email: string, password: string) => async (dispatch: Function) => {
+			const { user, token, error } = await userService.signIn(
+				email,
+				password
+			);
+			if (error) {
+				return dispatch(
+					setAuth({
+						error: error.message,
+					})
 				);
-			});
-	};
+			}
+			dispatch(
+				setAuth({
+					username: user?.displayName,
+					email: user?.email,
+					userID: user?.id,
+					token,
+				})
+			);
+		};
 
-export const signUp =
-	(username: string, password: string, email: string) =>
-	(dispatch: Function) => {
-		userService
-			.signUp(username, password, email)
-			.then((res) => {
-				if (res.error) {
-					dispatch(setAuth({ error: res.error.message }));
-				} else {
-                    dispatch(signIn(username, password));
-				}
-			})
-			.catch((err) => {
-				dispatch(setAuth({ error: err.message }));
-			});
-	};
+	const signUp =
+		(username: string, password: string, email: string) =>
+		async (dispatch: Function) => {
+			const { user, token, error } = await userService.signUp(
+				username,
+				password,
+				email
+			);
+			if (error) {
+				return dispatch(
+					setAuth({
+						error: error.message,
+					})
+				);
+			}
+			dispatch(
+				setAuth({
+					username: user?.displayName,
+					email: user?.email,
+					userID: user?.id,
+					token,
+				})
+			);
+		};
+	return { signIn, signUp };
+}
+
+export const { signIn, signUp } = authActions(container.resolve(UserService));
+
 export default authSlice.reducer;
