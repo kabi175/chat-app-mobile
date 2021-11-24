@@ -3,7 +3,7 @@ import { IUser } from '.';
 /**
  * User DataBase interface for the storing and retrieving of friends.
  */
-export interface IUserDB {
+export interface IFriendDB {
 	addFriend(friend: IUser): Promise<{ error?: Error }>;
 	removeFriend(friend: IUser): Promise<{ error?: Error }>;
 	removeAllFriend(): Promise<{ error?: Error }>;
