@@ -3,6 +3,8 @@ import { IUser } from '../model/user';
 export class UserApi {
 	constructor() {}
 
+	server = 'http://192.168.43.24:8080/';
+
 	async signIn(
 		authEmail: string,
 		password: string
@@ -13,18 +15,31 @@ export class UserApi {
 		token?: string;
 		error?: Error;
 	}> {
-		const res = await fetch('/api/user/signin', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({
-				authEmail,
-				password,
-			}),
-		});
-		const { username, id, token, email, error } = await res.json();
-		return { id, username, email, token, error };
+		try {
+			const res = await fetch(`${this.server}user/`, {
+				method: 'PUT',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					email: authEmail,
+					password,
+				}),
+			});
+			const {
+				displayName: username,
+				id,
+				token,
+				email,
+				error,
+			} = await res.json();
+			return { id, username, email, token, error };
+		} catch (err) {
+			return { error: err as Error };
+		} finally {
+			console.log('signin req made');
+		}
 	}
 
 	async signUp(
@@ -35,13 +50,14 @@ export class UserApi {
 		error?: Error;
 	}> {
 		try {
-			const res = await fetch('/api/user/signup', {
+			const res = await fetch(`${this.server}user/`, {
 				method: 'POST',
 				headers: {
+					Accept: 'application/json',
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					username,
+					displayName: username,
 					email,
 					password,
 				}),
@@ -50,6 +66,8 @@ export class UserApi {
 			return { error };
 		} catch (err) {
 			return { error: err as Error };
+		} finally {
+			console.log('signup req made');
 		}
 	}
 }
