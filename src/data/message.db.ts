@@ -1,7 +1,5 @@
-import { singleton } from 'tsyringe';
 import { IMessage, IMessageDB, IUser } from '../model';
 
-@singleton()
 export class InMemoryMessageDB implements IMessageDB {
 	messages: IMessage[];
 
@@ -9,25 +7,50 @@ export class InMemoryMessageDB implements IMessageDB {
 		this.messages = [];
 	}
 
-	async addNewMessage(message: IMessage): Promise<{ error?: Error }> {
+	async addMessage(message: IMessage): Promise<{ error?: Error }> {
 		this.messages.push(message);
 		return {};
 	}
 
-	async removeMessage(message: IMessage): Promise<{ error?: Error }> {
-		this.messages = this.messages.filter((m) => m.id !== message.id);
+	async removeMessageByID(
+		messageID: string
+	): Promise<{ error?: Error | undefined }> {
+		this.messages = this.messages.filter((m) => m.id !== messageID);
 		return {};
 	}
 
-	async clearMessage(): Promise<{ error?: Error }> {
+	async removeUserMessage(user: IUser): Promise<{ error?: Error }> {
+		this.messages = this.messages.filter(
+			(m) => m.from !== user.id && m.to !== user.id
+		);
+		return {};
+	}
+
+	async removeAllMessage(): Promise<{ error?: Error }> {
 		this.messages = [];
 		return {};
 	}
 
-	async clearUserMessage(userId: number): Promise<{ error?: Error }> {
-		this.messages = this.messages.filter(
-			(m) => m.from !== userId && m.to !== userId
+	async getMessageByID(
+		messageID: string
+	): Promise<{ error?: Error; message?: IMessage }> {
+		const message = this.messages.find((m) => m.id === messageID);
+		return { message };
+	}
+
+	async getMessagesByUserID(
+		userID: number
+	): Promise<{ error?: Error; messages?: IMessage[] }> {
+		const messages = this.messages.filter(
+			(m) => m.from === userID || m.to === userID
 		);
-		return {};
+		return { messages };
+	}
+
+	async getMessagesByID(
+		messageID: string
+	): Promise<{ error?: Error; messages?: IMessage[] }> {
+		const messages = this.messages.filter((m) => m.id === messageID);
+		return { messages };
 	}
 }
