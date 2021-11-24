@@ -1,7 +1,5 @@
-import { singleton } from 'tsyringe';
 import { IUser } from '../model/user';
 
-@singleton()
 export class UserApi {
 	constructor() {}
 
