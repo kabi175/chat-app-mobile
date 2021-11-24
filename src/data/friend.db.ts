@@ -1,11 +1,10 @@
-import { singleton } from 'tsyringe';
 import { IUser } from '../model';
-import { IUserDB } from '../model/user.db';
+import { IFriendDB } from '../model/friend.db';
 
 /**
  * In-memory User DataBase implementation.
  */
-export class InMemoryUserDB implements IUserDB {
+export class InMemoryFriendDB implements IFriendDB {
 	friends: IUser[];
 	constructor() {
 		this.friends = [];
