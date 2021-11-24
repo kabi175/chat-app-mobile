@@ -9,9 +9,6 @@ export interface IMessageDB {
 	getMessagesByID(
 		messageID: string
 	): Promise<{ error?: Error; messages?: IMessage[] }>;
-	getMessagesByUserEmail(
-		userEmail: string
-	): Promise<{ error?: Error; messages?: IMessage[] }>;
 	getMessagesByUserID(
 		userID: number
 	): Promise<{ error?: Error; messages?: IMessage[] }>;
