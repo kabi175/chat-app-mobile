@@ -1,9 +1,6 @@
-import { injectable, singleton } from 'tsyringe';
 import { UserApi } from '../data/user.api';
 import { IUser } from '../model';
 
-@injectable()
-@singleton()
 export class UserService {
 	constructor(private userApi: UserApi) {}
 
