@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import _ from 'lodash';
-import { container } from 'tsyringe';
+import { UserApi } from '../data/user.api';
 import { UserService } from '../service';
 
 export interface AuthState {
@@ -12,7 +12,7 @@ export interface AuthState {
 }
 
 const initialState: AuthState = {
-	username: 'kabilan',
+	username: 'kabi',
 };
 
 export const authSlice = createSlice({
@@ -83,6 +83,6 @@ function authActions(userService: UserService) {
 	return { signIn, signUp };
 }
 
-export const { signIn, signUp } = authActions(container.resolve(UserService));
+export const { signIn, signUp } = authActions(new UserService(new UserApi()));
 
 export default authSlice.reducer;
